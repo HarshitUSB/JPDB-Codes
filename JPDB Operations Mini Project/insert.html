@@ -1,0 +1,110 @@
+<html>
+
+<head>
+    <title>Data Insertion - L2E</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            background-color: #F7C7B1;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1>Emplyee Data Registration</h1>
+    </center>
+    <form method="post">
+        <table border="0" align="center">
+            <tr>
+                <td><label>Full Name: </label></td>
+                <td><input id="name" name="name" placeholder="Enter your Name" type="text" /></td>
+            </tr>
+
+            <tr>
+                <td><label>Roll No: </label></td>
+                <td><input id="rollno" name="rollno" placeholder="Enter Roll Number" type="text" /></td>
+            </tr>
+
+            <tr>
+                <td><label>Course: </label></td>
+                <td><input id="course" name="course" placeholder="Enter Selected Course" type="text" /></td>
+            </tr>
+
+            <tr>
+                <td><label>Age: </label></td>
+                <td><input id="age" name="age" placeholder="Enter Age" type="text" /></td>
+            </tr>
+        </table><br>
+        <center><input type="button" value="Register" onclick="registerCandidate();" /></center>
+    </form>
+    <script>
+        function createPUTRequest(connToken, jsonObj, dbName, relName) {
+            var putRequest = "{\n" +
+                "\"token\" : \"" +
+                connToken +
+                "\"," +
+                "\"dbName\": \"" +
+                dbName +
+                "\",\n" + "\"cmd\" : \"PUT\",\n" +
+                "\"rel\" : \"" +
+                relName + "\"," +
+                "\"jsonStr\": \n" +
+                jsonObj +
+                "\n" +
+                "}";
+            return putRequest;
+        }
+
+        function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function(result) {
+                jsonObj = JSON.parse(result);
+            }).fail(function(result) {
+                var dataJsonObj = result.responseText;
+                jsonObj = JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+        }
+
+        function validateAndGetFormData() {
+
+            var name = document.getElementById("name").value;
+            var rollno = document.getElementById("rollno").value;
+            var course = document.getElementById("course").value;
+            var age = document.getElementById("age").value;
+
+            var jsonStrObj = {
+                StudentName: name,
+                Course: course,
+                RollNo: rollno,
+                Age: age,
+            };
+            return JSON.stringify(jsonStrObj);
+        }
+
+        function registerCandidate() {
+
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            var putReqStr = createPUTRequest("90937569|-31949294945673511|90942680",
+                jsonStr, "StudentData", "Stu-Rel");
+            window.alert(putReqStr);
+            jQuery.ajaxSetup({
+                async: false
+            });
+            var resultObj = executeCommand(putReqStr,
+                "http://api.login2explore.com:5577", "/api/iml");
+            jQuery.ajaxSetup({
+                async: true
+            });
+            window.alert("INSERTED " + JSON.stringify(resultObj));
+
+        }
+    </script>
+</body>
+
+</html>
